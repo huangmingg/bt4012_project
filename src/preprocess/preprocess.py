@@ -31,7 +31,6 @@ class CreditCardDataset(DatasetWrapper):
 
         ## drop unnecessary columns
         x = self.raw_df.drop(['Class', 'Time'], axis=1)
-        x = x[['V1']]
         self.columns = x.columns
 
         ## handle missing data

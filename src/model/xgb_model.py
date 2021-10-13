@@ -9,13 +9,12 @@ class XGBWrapper(ClassifierWrapper):
 
     def __init__(self, data: DatasetWrapper, *args) -> None:
         super().__init__(data)
-        self.model = XGBClassifier(objective='binary:logistic', random_state=4012)
+        self.model = XGBClassifier(use_label_encoder=False, random_state=4012)
 
 
     def train(self):
-        self.model.fit(self.data.x_train, self.data.y_train, 
-            eval_set=[(self.data.x_train, self.data.y_train), (self.data.x_test, self.data.y_test)], eval_metric=['merror', 'mlogloss'], verbose=True)
-            
+        self.model.fit(self.data.x_train, self.data.y_train, eval_metric=['auc'])
+        print('Successfully fitted model')
 
     def save(self, src):
         pass
