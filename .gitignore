@@ -6,6 +6,9 @@
 .DS_Store
 __pycache__
 
+# R
+.Rhistory
+
 
 # Distribution / packaging
 .Python
