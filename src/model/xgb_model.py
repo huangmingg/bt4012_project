@@ -14,7 +14,7 @@ class XGBWrapper(ClassifierWrapper):
 
     def train(self):
         self.model.fit(self.data.x_train, self.data.y_train, eval_metric=['auc'])
-        print('Successfully fitted model')
+        print('Successfully fitted XGB model')
 
     def save(self, src):
         pass

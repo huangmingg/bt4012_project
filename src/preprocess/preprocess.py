@@ -9,7 +9,7 @@ class DatasetWrapper(ABC):
 
     def __init__(self, filename: str) -> None:
         parent_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-        self.raw_df = pd.read_csv(os.path.join(parent_dir, 'data', filename))
+        self.raw_df = pd.read_csv(os.path.join(parent_dir, 'src/data', filename))
         self.process()
 
 

@@ -6,13 +6,15 @@ import os
 
 
 def main():
-    algorithms = [i() for i in ALGORITHMS]
     datasets = [wrapper(filename) for wrapper, filename in DATASETS]
+    algorithms = [i() for i in ALGORITHMS]
     for d in datasets:
+        print("Processing data")
         d.process()
         for a in algorithms:
+            a.run(d)
             for m in MODELS:
-                model = m(d)
+                model = m(a)
                 model.train()
 
 
