@@ -2,19 +2,20 @@ from model.model import ClassifierWrapper, DatasetWrapper
 from xgboost import XGBClassifier
 import seaborn as sns 
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 class XGBWrapper(ClassifierWrapper):
 
-
     def __init__(self, data: DatasetWrapper, *args) -> None:
         super().__init__(data)
-        self.model = XGBClassifier(use_label_encoder=False, random_state=4012)
+        self.model = XGBClassifier(use_label_encoder=True, random_state=4012)
 
-
-    def train(self):
-        self.model.fit(self.data.x_train, self.data.y_train, eval_metric=['auc'])
-        print('Successfully fitted XGB model')
+    def train(self) -> None:
+        self.model.fit(self.data.bxt, self.data.yxt, eval_metric=['auc'])
+        ans = self.model.predict(self.data.x_test)
+        print(ans)
+        print('Successfully fitted model')
 
     def save(self, src):
         pass

@@ -1,22 +1,25 @@
 from abc import ABC, abstractmethod
+from sampling.sampling import SamplingAlgorithm
 from sklearn.model_selection import train_test_split
 from typing import Tuple
 import os
 import pandas as pd
+import numpy as np
 
 
 class DatasetWrapper(ABC):
 
     def __init__(self, filename: str) -> None:
         parent_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-        self.raw_df = pd.read_csv(os.path.join(parent_dir, 'src/data', filename))
-        self.process()
-
+        self.raw_df = pd.read_csv(os.path.join(parent_dir, 'data', filename))
+        self.preprocess()
 
     @abstractmethod
-    def process(self) -> None:
+    def preprocess(self) -> None:
         pass
 
+    def balance(self, algorithm: SamplingAlgorithm) -> None:
+        self.bxt, self.yxt = algorithm.run(self.x_train, self.y_train)
 
 
 class CreditCardDataset(DatasetWrapper):
@@ -24,22 +27,18 @@ class CreditCardDataset(DatasetWrapper):
     def __init__(self, filepath: os.path) -> None:
         super().__init__(filepath)
 
-
-    def process(self) -> None:
-        '''Initializes attribute x_train, x_test, y_train, y_test'''
+    def preprocess(self) -> None:
+        """Initializes attribute x_train, x_test, y_train, y_test"""
         y = self.raw_df['Class']
 
-        ## drop unnecessary columns
+        # drop unnecessary columns
         x = self.raw_df.drop(['Class', 'Time'], axis=1)
         self.columns = x.columns
 
-        ## handle missing data
+        # handle missing data
 
-        ## scale data
+        # scale data
 
-        ## split data
-
-        self.x_train, self.x_test, self.y_train, self.y_test = train_test_split(x, y, train_size=0.80, random_state=4012)
-        # print(self.raw_df)
-
+        # split data
+        self.x_train, self.x_test, self.y_train, self.y_test = train_test_split(x.to_numpy(), y.to_numpy(), train_size=0.80, random_state=4012)
 

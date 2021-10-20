@@ -3,9 +3,9 @@ from preprocess.preprocess import DatasetWrapper
 from sampling.sampling import SamplingAlgorithm
 
 
-class SmoteAlgorithm(SamplingAlgorithm):
+class Smote(SamplingAlgorithm):
+    
     @staticmethod
-    def run(imbalanced_train: DatasetWrapper) -> Tuple[pd.DataFrame, pd.DataFrame]:
-        print("Running SMOTE algorithm")
-        x_train, y_train = SMOTE().fit_resample(imbalanced_train.x_train, imbalanced_train.y_train)
-        return (x_train, y_train)
+    def run(x_train: np.array, y_train: np.array) -> Tuple[np.array, np.array]:
+        balanced_x, balanced_y = SMOTE().fit_resample(x_train, y_train)
+        return balanced_x, balanced_y
