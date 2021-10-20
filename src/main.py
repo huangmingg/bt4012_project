@@ -13,7 +13,6 @@ def evaluate(d: DatasetWrapper, a: SamplingAlgorithm, m: ClassifierWrapper) -> N
 
 def main():
     datasets = [wrapper(filename) for wrapper, filename in DATASETS]
-    algorithms = [i() for i in ALGORITHMS]
     for d in datasets:
         for a in ALGORITHMS:
             for m in MODELS:

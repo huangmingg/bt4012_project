@@ -3,11 +3,19 @@ import numpy as np
 from preprocess.preprocess import DatasetWrapper
 from sampling.sampling import SamplingAlgorithm
 from imblearn.over_sampling import SMOTE
+from imblearn.under_sampling import RandomUnderSampler 
+from imblearn.pipeline import Pipeline
 from typing import Tuple
 
 class SmoteAlgorithm(SamplingAlgorithm):
     
     @staticmethod
     def run(x_train: np.array, y_train: np.array) -> Tuple[np.array, np.array]:
-        balanced_x, balanced_y = SMOTE().fit_resample(x_train, y_train)
+        minority_ratio = len(y_train[y_train==0])*5
+        majority_ratio = len(y_train[y_train==1])*6
+        over = SMOTE(sampling_strategy={1: minority_ratio})
+        under = RandomUnderSampler(sampling_strategy={1: majority_ratio})
+        steps = [('o', over), ('u', under)]
+        pipeline = Pipeline(steps=steps)
+        balanced_x, balanced_y = pipeline.fit_resample(x_train, y_train)
         return balanced_x, balanced_y
