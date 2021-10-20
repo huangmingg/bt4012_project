@@ -5,16 +5,18 @@ from config.config import ALGORITHMS, DATASETS, MODELS
 import os
 
 
+def evaluate(d: DatasetWrapper, a: SamplingAlgorithm, m: ClassifierWrapper) -> None:
+    d.balance(a)
+    model = m(d)
+    model.train()
+
+
 def main():
-    algorithms = [i() for i in ALGORITHMS]
     datasets = [wrapper(filename) for wrapper, filename in DATASETS]
     for d in datasets:
-        d.process()
-        for a in algorithms:
+        for a in ALGORITHMS:
             for m in MODELS:
-                model = m(d)
-                model.train()
-
+                evaluate(d, a, m)
 
 if __name__ == '__main__':
     main()
