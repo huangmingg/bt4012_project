@@ -12,7 +12,7 @@ def main():
         print("Processing data")
         d.process()
         for a in algorithms:
-            a.run(d)
+            x, y = a.run(d)
             for m in MODELS:
                 model = m(a)
                 model.train()
