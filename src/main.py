@@ -18,6 +18,5 @@ def main():
             for m in MODELS:
                 evaluate(d, a, m)
 
-
 if __name__ == '__main__':
     main()
