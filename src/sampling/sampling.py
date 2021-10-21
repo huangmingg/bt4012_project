@@ -8,5 +8,5 @@ class SamplingAlgorithm(ABC):
     
     @staticmethod
     @abstractmethod
-    def run(x_train: np.array, y_train: np.array) -> Tuple[np.array, np.array]:
+    def run(x_train: np.array, y_train: np.array, **kwargs) -> Tuple[np.array, np.array]:
         pass

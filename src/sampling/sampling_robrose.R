@@ -15,7 +15,6 @@ if (!require(robROSE)) {
 
 library(robROSE)
 
-
 # Parser for command line arguments
 option_list = list(
   make_option(c("-f", "--file"), type="character", default=NULL, 
@@ -50,14 +49,9 @@ if (is.null(opt$file)) {
 
 
 # Reads in data and samples based on given arguments
-
 df = read_csv(opt$file)
-
 f_str = paste(c(opt$label, '.'), collapse=' ~ ')
 f = as.formula(f_str)
-
-df = subset(df, select=-c(Time))
-
 df_rob = robROSE(f, data=df, r=opt$r, alpha=opt$alpha, const=opt$const, seed=opt$seed)
 write.csv(df_rob$data, file=opt$out)
 
