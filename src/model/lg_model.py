@@ -13,7 +13,7 @@ class LGWrapper(ClassifierWrapper):
 
 
     def train(self):
-        self.model.fit(self.data.x_train, self.data.y_train)
+        self.model.fit(self.data.bxt, self.data.yxt)
         print('Successfully fitted LG model')
 
     def save(self, src):
