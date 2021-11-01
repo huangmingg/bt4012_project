@@ -23,7 +23,7 @@ class DatasetWrapper(ABC):
         pass
 
     def balance(self, algorithm: SamplingAlgorithm) -> None:
-        self.bxt, self.yxt = algorithm.run(self.x_train, self.y_train)
+        self.bxt, self.yxt = algorithm.run(self.x_train, self.y_train, columns=self.columns)
 
 
 class CreditCardDataset(DatasetWrapper):
@@ -33,20 +33,20 @@ class CreditCardDataset(DatasetWrapper):
 
     def preprocess(self) -> None:
         """Initializes attribute x_train, x_test, y_train, y_test"""
+        self.raw_df = self.raw_df[~self.raw_df.duplicated(keep='last')]
 
-        self.raw_df = self.raw_df.drop_duplicates()
         y = self.raw_df['Class']
 
         # drop unnecessary columns
         x = self.raw_df.drop(['Class', 'Time'], axis=1)
         self.columns = x.columns
 
-        # handle missing data
-
-        # scale data
-
         # split data
         self.x_train, self.x_test, self.y_train, self.y_test = train_test_split(x.to_numpy(), y.to_numpy(), train_size=0.80, random_state=4012)
+        
+        scaler = StandardScaler()
+        self.x_train = scaler.fit_transform(self.x_train)
+        self.x_test = scaler.transform(self.x_test)
 
 
 class AdultDataset(DatasetWrapper):
@@ -85,3 +85,4 @@ class AdultDataset(DatasetWrapper):
         self.x_test = x_test
         self.y_train = y_train
         self.y_test = y_test
+
