@@ -49,7 +49,7 @@ if (is.null(opt$file)) {
 
 
 # Reads in data and samples based on given arguments
-df = read_csv(opt$file)
+df = read.csv(opt$file, stringsAsFactors = T)
 f_str = paste(c(opt$label, '.'), collapse=' ~ ')
 f = as.formula(f_str)
 df_rob = robROSE(f, data=df, r=opt$r, alpha=opt$alpha, const=opt$const, seed=opt$seed)
