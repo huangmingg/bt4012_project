@@ -10,7 +10,7 @@ from typing import Tuple
 class SmoteAlgorithm(SamplingAlgorithm):
     
     @staticmethod
-    def run(x_train: np.array, y_train: np.array) -> Tuple[np.array, np.array]:
+    def run(x_train: np.array, y_train: np.array, **kwargs) -> Tuple[np.array, np.array]:
 #         minority_ratio = len(y_train[y_train==0])*5
 #         majority_ratio = len(y_train[y_train==1])*6
 #         under = RandomUnderSampler(sampling_strategy={1: majority_ratio})
