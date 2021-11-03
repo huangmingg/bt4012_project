@@ -8,7 +8,7 @@ def evaluate(d: DatasetWrapper, a: SamplingAlgorithm, m: ClassifierWrapper) -> N
     d.balance(a)
     model = m(d)
     model.train()
-
+    
 def main():
     datasets = [wrapper(filename) for wrapper, filename in DATASETS]
     for d in datasets:
