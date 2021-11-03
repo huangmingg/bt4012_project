@@ -2,7 +2,6 @@ import numpy as np
 from abc import ABC, abstractmethod
 from typing import Tuple
 
-from sklearn.neighbors import NearestNeighbors
 
 class SamplingAlgorithm(ABC):
     
