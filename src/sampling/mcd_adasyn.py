@@ -9,7 +9,7 @@ from sklearn.covariance import MinCovDet
 from sklearn.neighbors import NearestNeighbors
 
 
-class McdAdasyn(SamplingAlgorithm):
+class McdAdasynAlgorithm(SamplingAlgorithm):
     """Oversample using our customized experimental algorithm McdAdasyn.
 
     McdAdasyn uses MCD algorithm uses MCD algorithm to compute the mahalanobis distance of the minority class examples,
