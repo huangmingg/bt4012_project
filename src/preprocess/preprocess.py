@@ -23,7 +23,7 @@ class DatasetWrapper(ABC):
         pass
 
     def balance(self, algorithm: SamplingAlgorithm) -> None:
-        self.bxt, self.yxt = algorithm.run(self.x_train, self.y_train, columns=self.columns)
+        self.bxt, self.byt = algorithm.run(self.x_train, self.y_train, columns=self.columns)
 
 
 class CreditCardDataset(DatasetWrapper):
