@@ -1,7 +1,3 @@
-import os
-
-from sklearn.metrics import roc_auc_score, average_precision_score
-
 from sampling.sampling import SamplingAlgorithm
 from model.model import ClassifierWrapper
 from preprocess.preprocess import DatasetWrapper
@@ -21,7 +17,7 @@ def main():
                 evaluate(d, a, m)
 
 if __name__ == '__main__':
-    # main()
-    experiment_2()
+    main()
+
 
 

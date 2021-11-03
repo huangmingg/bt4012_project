@@ -63,13 +63,12 @@ class SwarmDataset(DatasetWrapper):
         # drop unnecessary columns
         x = self.raw_df.drop(['Swarm_Behaviour'], axis=1)
         self.columns = x.columns
-
+        
         # split data
         self.x_train, self.x_test, self.y_train, self.y_test = train_test_split(x.to_numpy(), y.to_numpy(), train_size=0.80, random_state=4012)
         scaler = StandardScaler()
         self.x_train = scaler.fit_transform(self.x_train)
         self.x_test = scaler.transform(self.x_test)
-
         
 class AdultDataset(DatasetWrapper):
 
