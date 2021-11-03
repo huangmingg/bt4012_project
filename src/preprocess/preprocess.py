@@ -74,7 +74,7 @@ class AdultDataset(DatasetWrapper):
         self.cat_columns_ind = [self.columns.tolist().index(cat) for cat in self.cat_columns]      
         
         # split train-test
-        x_train, x_test, y_train, y_test = train_test_split(x.to_numpy(), y.to_numpy(), train_size=0.80, random_state=4012)
+        x_train, x_test, y_train, y_test = train_test_split(x.to_numpy(), y.to_numpy(), train_size=0.80, random_state=4012, stratify=y)
         
         # scale numerical columns
         ss = StandardScaler()
