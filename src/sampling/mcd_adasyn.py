@@ -55,6 +55,6 @@ class McdAdasynAlgorithm(SamplingAlgorithm):
             minority_resampled.append(sampled_x)
 
         minority_resampled = np.vstack(minority_resampled)
-        balanced_x_train = np.concatenate((majority, minority_resampled), axis=0)
-        balanced_y_train = np.concatenate((np.zeros(majority.shape[0]), np.ones(minority.shape[0])), axis=None)        
-        return balanced_x_train, balanced_y_train
+        bxt = np.concatenate((majority, minority_resampled), axis=0)
+        byt = np.concatenate((np.zeros(majority.shape[0]), np.ones(minority_resampled.shape[0])), axis=None)        
+        return bxt, byt
