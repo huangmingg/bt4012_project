@@ -39,8 +39,9 @@ def main():
                 d.balance(a[0], **a[1])
                 model = m(d)
                 print(f"Evaluating {type(model).__name__} model for algorithm {a[0].__name__} using dataset {type(d).__name__}")
-                model.train()
                 model.evaluate()
+                rocauc_mean, rocauc_std, auprc_mean, auprc_std = model.compute_results()
+                print(f"ROCAUC Mean: {rocauc_mean}, ROCAUC Std: {rocauc_std}, AUPRC Mean: {auprc_mean}, AUPRC Std: {auprc_std}")
             
 
 if __name__ == '__main__':

@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 from abc import ABC, abstractmethod
 from sampling.sampling import SamplingAlgorithm
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, RepeatedStratifiedKFold
 from sklearn.preprocessing import StandardScaler
 from typing import Tuple
 
@@ -20,8 +20,12 @@ class DatasetWrapper(ABC):
         pass
 
     def balance(self, algorithm: SamplingAlgorithm, **kwargs) -> None:
-        self.bxt, self.byt = algorithm.run(self.x_train, self.y_train, self.columns, **kwargs)
-
+        self.bxt, self.byt = [], []
+        for i in range(len(self.x_train)):
+            bxt, byt = algorithm.run(self.x_train[i], self.y_train[i], self.columns, **kwargs)
+            self.bxt.append(bxt)
+            self.byt.append(byt)
+            
 
 class CreditCardDataset(DatasetWrapper):
 
@@ -32,18 +36,22 @@ class CreditCardDataset(DatasetWrapper):
         """Initializes attribute x_train, x_test, y_train, y_test"""
         self.raw_df = self.raw_df[~self.raw_df.duplicated(keep='last')]
 
-        y = self.raw_df['Class']
+        y = self.raw_df['Class'].to_numpy()
 
         # drop unnecessary columns
         x = self.raw_df.drop(['Class', 'Time'], axis=1)
         self.columns = x.columns
+        x = x.to_numpy()
 
         # split data
-        self.x_train, self.x_test, self.y_train, self.y_test = train_test_split(x.to_numpy(), y.to_numpy(), train_size=0.80, random_state=4012)
-        
         scaler = StandardScaler()
-        self.x_train = scaler.fit_transform(self.x_train)
-        self.x_test = scaler.transform(self.x_test)
+        self.x_train, self.x_test, self.y_train, self.y_test = [], [], [], []
+        r = RepeatedStratifiedKFold(n_splits=5, n_repeats=2, random_state=4012)
+        for train_index, test_index in r.split(x, y):
+            self.x_train.append(scaler.fit_transform(x[train_index]))
+            self.x_test.append(scaler.transform(x[test_index]))
+            self.y_train.append(y[train_index])
+            self.y_test.append(y[test_index])        
         
 
 class SwarmDataset(DatasetWrapper):
@@ -63,7 +71,7 @@ class SwarmDataset(DatasetWrapper):
         self.columns = x.columns
         
         # split data
-        self.x_train, self.x_test, self.y_train, self.y_test = train_test_split(x.to_numpy(), y.to_numpy(), train_size=0.80, random_state=4012)
+        self.x_train, self.x_test, self.y_train, self.y_test = train_test_split(x.to_numpy(), y.to_numpy(), train_size=0.80, random_state=4012, stratify=y)
         scaler = StandardScaler()
         self.x_train = scaler.fit_transform(self.x_train)
         self.x_test = scaler.transform(self.x_test)
@@ -94,8 +102,9 @@ class AdultDataset(DatasetWrapper):
             self.num_columns_ind = [self.columns.tolist().index(num) for num in self.num_columns]
             self.cat_columns_ind = [self.columns.tolist().index(cat) for cat in self.cat_columns]      
 
+
             # split train-test
-            x_train, x_test, y_train, y_test = train_test_split(x.to_numpy(), y.to_numpy(), train_size=0.80, random_state=4012)
+            x_train, x_test, y_train, y_test = train_test_split(x.to_numpy(), y.to_numpy(), train_size=0.80, random_state=4012, stratify=y)
 
             # scale numerical columns
             ss = StandardScaler()
