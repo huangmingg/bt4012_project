@@ -9,13 +9,13 @@ from sklearn.utils import _safe_indexing
 from sklearn.utils import check_array
 from sklearn.utils.sparsefuncs_fast import csr_mean_variance_axis0
 from sklearn.utils.sparsefuncs_fast import csc_mean_variance_axis0
-from typing import Tuple
+from typing import Tuple, List
 
 
 class AdasynAlgorithm(SamplingAlgorithm):
 
     @staticmethod
-    def run(x_train: np.array, y_train: np.array, **kwargs) -> Tuple[np.array, np.array]:
+    def run(x_train: np.array, y_train: np.array, columns: List[str], **kwargs) -> Tuple[np.array, np.array]:
         balanced_x, balanced_y = ADASYN().fit_resample(x_train, y_train)
         return balanced_x, balanced_y
 
@@ -23,7 +23,7 @@ class AdasynAlgorithm(SamplingAlgorithm):
 class AdasynNCAlgorithm(SamplingAlgorithm):
 
     @staticmethod
-    def run(x_train: np.array, y_train: np.array, **kwargs) -> Tuple[np.array, np.array]:
+    def run(x_train: np.array, y_train: np.array, columns: List[str], **kwargs) -> Tuple[np.array, np.array]:
         categorical_features = kwargs['categorical_features']
         balanced_x, balanced_y = ADASYNNC(
             categorical_features).fit_resample(x_train, y_train)

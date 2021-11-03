@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Tuple, List
 import os
 import tempfile
 
@@ -12,7 +12,7 @@ from sampling.sampling import SamplingAlgorithm
 class RobRoseAlgorithm(SamplingAlgorithm):
 
     @staticmethod
-    def run(x_train: np.array, y_train: np.array, **kwargs) -> Tuple[np.array, np.array]:
+    def run(x_train: np.array, y_train: np.array, columns: List[str], **kwargs) -> Tuple[np.array, np.array]:
         """Runs robROSE algorithm to balance given dataset
 
         Args:
@@ -30,8 +30,7 @@ class RobRoseAlgorithm(SamplingAlgorithm):
             Tuple[np.array, np.array]: Tuple containing sample features and target vector of balanced dataset
         """
 
-        label = kwargs['label']
-        columns = kwargs['columns']
+        label = 'class'
         r = kwargs['r']
         alpha = kwargs['alpha']
         const = kwargs['const']
@@ -44,6 +43,7 @@ class RobRoseAlgorithm(SamplingAlgorithm):
 
         tmp_output = tempfile.NamedTemporaryFile(suffix='.csv', delete=False)
         os.system(f'Rscript --vanilla sampling/sampling_robrose.R --file={tmp_input.name} --out={tmp_output.name} --label={label} --r={r} --alpha={alpha} --const={const} --seed={seed}')
+        print(tmp_output.name)
         tmp_output.close()
         sampled_df = pd.read_csv(tmp_output.name, index_col=0)
         balanced_df = pd.concat([df, sampled_df], axis=0)

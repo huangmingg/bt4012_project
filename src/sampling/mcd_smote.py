@@ -2,7 +2,7 @@ import os
 import pandas as pd
 import numpy as np
 from imblearn.over_sampling import SMOTE
-from typing import Tuple
+from typing import Tuple, List
 from sampling.sampling import SamplingAlgorithm
 from scipy.stats import chi2
 from sklearn.covariance import MinCovDet
@@ -19,7 +19,10 @@ class McdSmoteAlgorithm(SamplingAlgorithm):
     """
 
     @staticmethod
-    def run(x_train: np.array, y_train: np.array, p: float=0.999, sp: float=0.95, random_state: int=4012, **kwargs) -> Tuple[np.array, np.array]:
+    def run(x_train: np.array, y_train: np.array, columns: List[str], **kwargs) -> Tuple[np.array, np.array]:
+        random_state = kwargs['random_state']
+        sp = kwargs['sp']
+        p = kwargs['p']
         minority_index = np.where(y_train == 1)
         majority_index = np.where(y_train == 0)
         minority = x_train[minority_index]

@@ -47,7 +47,7 @@ def main():
             for a in ALGORITHMS:
                 d.balance(a[0], **a[1])
                 model = m(d)
-                print(f"Evaluating {type(model).__name__} model for algorithm {a.__name__} using dataset {type(d).__name__}")
+                print(f"Evaluating {type(model).__name__} model for algorithm {a[0].__name__} using dataset {type(d).__name__}")
                 model.train()
                 model.evaluate()
             

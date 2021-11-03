@@ -19,8 +19,8 @@ class DatasetWrapper(ABC):
     def preprocess(self) -> None:
         pass
 
-    def balance(self, algorithm: SamplingAlgorithm) -> None:
-        self.bxt, self.byt = algorithm.run(self.x_train, self.y_train, columns=self.columns)
+    def balance(self, algorithm: SamplingAlgorithm, **kwargs) -> None:
+        self.bxt, self.byt = algorithm.run(self.x_train, self.y_train, self.columns, **kwargs)
 
 
 class CreditCardDataset(DatasetWrapper):
@@ -45,6 +45,7 @@ class CreditCardDataset(DatasetWrapper):
         self.x_train = scaler.fit_transform(self.x_train)
         self.x_test = scaler.transform(self.x_test)
         
+
 class SwarmDataset(DatasetWrapper):
     def __init__(self, filepath: os.path) -> None:
         super().__init__(filepath)
@@ -67,6 +68,7 @@ class SwarmDataset(DatasetWrapper):
         self.x_train = scaler.fit_transform(self.x_train)
         self.x_test = scaler.transform(self.x_test)
         
+
 class AdultDataset(DatasetWrapper):
 
         def __init__(self, filepath: os.path) -> None:

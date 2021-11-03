@@ -4,6 +4,7 @@ from sklearn.linear_model import LogisticRegression
 # import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import classification_report
+from sklearn.metrics import roc_auc_score, average_precision_score
 
 
 class LGWrapper(ClassifierWrapper):
@@ -22,7 +23,7 @@ class LGWrapper(ClassifierWrapper):
 
 
     def evaluate(self):
-        y_pred = self.model.predict(self.data.x_test)
-        conmatrix = confusion_matrix(self.data.y_test, y_pred)
-        print(conmatrix)
-        print(classification_report(self.data.y_test, y_pred))
+        y_score = self.model.predict(self.data.x_test)
+        # y_score = self.model.predict_proba(self.data.x_test)
+        # y_score = y_score[:,1]
+        print('Logistic Regression: ', roc_auc_score(self.data.y_test, y_score), average_precision_score(self.data.y_test, y_score) )
