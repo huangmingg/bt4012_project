@@ -8,7 +8,7 @@ from scipy.stats import chi2
 from sklearn.covariance import MinCovDet
 
 
-class McdSmote(SamplingAlgorithm):
+class McdSmoteAlgorithm(SamplingAlgorithm):
     """Oversample using our customized experimental algorithm McdSmote.
 
     Similar to robROSE, McdSMOTE uses MCD algorithm (mahalanobis distance) detect outliers of the minority class,
