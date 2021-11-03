@@ -1,6 +1,7 @@
 import os
 from config.config import ALGORITHMS
 from model.lg_model import LGWrapper
+from model.xgb_model import XGBWrapper
 from model.model import ClassifierWrapper
 from preprocess.preprocess import CreditCardDataset
 from sampling.adasyn import AdasynAlgorithm
@@ -15,12 +16,10 @@ from sampling.smote import SmoteAlgorithm
 def main():
     DATASETS = [
         (CreditCardDataset, 'creditcard.csv'),
-        # (SwarmDataset, 'Swarm_Behaviour.csv'),
-        # (AdultDataset, 'adult.csv')
     ]
 
     MODELS: ClassifierWrapper = [
-        # XGBWrapper,
+        XGBWrapper,
         LGWrapper
     ]
 
@@ -34,14 +33,6 @@ def main():
     ]
 
     datasets = [wrapper(filename) for wrapper, filename in DATASETS]
-
-    # to_evaluate = [
-    #     ('Imbalanced', bx_imbal, by_imbal),
-    #     ('SMOTENC', bx_smotenc, by_smotenc),
-    #     ('ADASYNNC', bx_adasync, by_adasync),
-    #     ('ROBROSE', bx_robrose, by_robrose),
-    # ]
-
     for m in MODELS:
         for d in datasets:
             for a in ALGORITHMS:
