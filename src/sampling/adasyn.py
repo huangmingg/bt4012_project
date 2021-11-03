@@ -15,10 +15,10 @@ from sampling.sampling import SamplingAlgorithm
 from imblearn.over_sampling import ADASYN, SMOTENC
 
 
-class Adasyn(SamplingAlgorithm):
+class AdasynAlgorithm(SamplingAlgorithm):
 
     @staticmethod
-    def run(x_train: np.array, y_train: np.array) -> Tuple[np.array, np.array]:
+    def run(x_train: np.array, y_train: np.array, columns) -> Tuple[np.array, np.array]:
         balanced_x, balanced_y = ADASYN().fit_resample(x_train, y_train)
         return balanced_x, balanced_y
 
