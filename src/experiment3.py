@@ -1,6 +1,7 @@
 import os
 
 from sklearn.metrics import roc_auc_score, average_precision_score
+from preprocess.preprocess import CreditCardDataset, SwarmDataset
 
 from model.model import ClassifierWrapper
 from preprocess.preprocess import DatasetWrapper
@@ -15,8 +16,17 @@ from model.lg_model import LGWrapper
 from model.xgb_model import XGBWrapper
 from sklearn.metrics import roc_auc_score, average_precision_score
 
+def dataInfo():
+    dataset = SwarmDataset("Swarm_Behaviour.csv")
+    print("High Dimensional Dataset")
+    print("Number of Positives: ", len(dataset.raw_df[dataset.raw_df['Swarm_Behaviour']==1]))
+    print("Number of Negatives: ", len(dataset.raw_df[dataset.raw_df['Swarm_Behaviour']==0]))
+    dataset = CreditCardDataset("creditcard.csv")
+    print("Low Dimensional Dataset")
+    print("Number of Positives: ", len(dataset.raw_df[dataset.raw_df['Class']==1]))
+    print("Number of Negatives: ", len(dataset.raw_df[dataset.raw_df['Class']==0]))
+
 def experiment_3():
-    from preprocess.preprocess import CreditCardDataset, SwarmDataset
     print("Using High Dimensional Data")
     dataset = SwarmDataset("Swarm_Behaviour.csv")
     experiment_3_run(dataset)

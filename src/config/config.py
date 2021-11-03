@@ -12,14 +12,14 @@ from model.lg_model import LGWrapper
 
 DATASETS = [
     (CreditCardDataset, 'creditcard_truncate.csv'),
-    (SwarmDataset, 'Swarm_Behaviour.csv')
+    (SwarmDataset, 'Swarm_Behaviour.csv'),
     (AdultDataset, 'adult.csv')
     ]
 
 ALGORITHMS: SamplingAlgorithm = [
     RobRoseAlgorithm,
     Adasyn,
-    SmoteAlgorithm
+    SmoteAlgorithm,
     McdAdasynAlgorithm,
     McdSmoteAlgorithm
     ]
