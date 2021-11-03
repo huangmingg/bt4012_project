@@ -42,7 +42,7 @@ class McdAdasynAlgorithm(SamplingAlgorithm):
         n_samples_generate = np.rint(md * g).astype(int)
         nn = NearestNeighbors(n_neighbors=5, algorithm='brute', metric='mahalanobis', metric_params={'V': np.cov(minority)})
         nn.fit(minority)
-        distances, indices = nn.kneighbors(minority)
+        _, indices = nn.kneighbors(minority)
         for idx, count in np.ndenumerate(n_samples_generate):
             if count == 0:
                 continue
