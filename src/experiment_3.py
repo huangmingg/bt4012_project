@@ -65,4 +65,6 @@ def experiment_3_run(dataset):
         print("AUPRC Score: ", average_precision_score(dataset.y_test, y_score))
         
         
+if __name__ == '__main__':
+    experiment_3()        
         
