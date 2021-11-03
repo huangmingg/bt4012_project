@@ -11,12 +11,15 @@ class ClassifierWrapper(ABC):
         self.data = data
 
     @abstractmethod
-    def train(self) -> None:
+    def train(self, *args) -> None:
         pass
+
 
     @abstractmethod
-    def save(self, src) -> bool:
+    def save(self) -> bool:
         pass
 
+
+    @abstractmethod
     def evaluate(self, display: bool = True) -> None:
         pass
