@@ -15,17 +15,18 @@ DATASETS = [
     (CreditCardDataset, 'creditcard.csv'),
     (SwarmDataset, 'Swarm_Behaviour.csv'),
     (AdultDataset, 'adult.csv')
-    ]
+]
 
 ALGORITHMS: SamplingAlgorithm = [
-    RobRoseAlgorithm,
-    AdasynAlgorithm,
+    BaselineAlgorithm,
     SmoteAlgorithm,
+    AdasynAlgorithm,
+    RobRoseAlgorithm,
     McdAdasynAlgorithm,
     McdSmoteAlgorithm
-    ]
+]
 
 MODELS: ClassifierWrapper = [
     XGBWrapper,
     LGWrapper
-    ]
+]
