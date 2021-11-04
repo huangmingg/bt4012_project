@@ -1,5 +1,5 @@
 import os
-from config.config import ALGORITHMS
+import pandas as pd
 from model.lg_model import LGWrapper
 from model.xgb_model import XGBWrapper
 from model.model import ClassifierWrapper
@@ -19,17 +19,17 @@ def main():
     ]
 
     MODELS: ClassifierWrapper = [
-        XGBWrapper,
+        # XGBWrapper,
         LGWrapper
     ]
 
     ALGORITHMS: SamplingAlgorithm = [
-        (BaselineAlgorithm, {}),
-        (SmoteAlgorithm, {}),
-        (AdasynAlgorithm, {}),
-        (RobRoseAlgorithm, {"r": 0.5, "alpha": 0.95, "const": 1, "seed": 4012}),
-        (McdAdasynAlgorithm, {"random_state": 4012, "sp": 0.95}),
-        (McdSmoteAlgorithm, {"random_state": 4012, "sp": 0.95, "p": 0.999}),
+        # (BaselineAlgorithm, {"random_state": 4012, "oversampling_level": [0.05, 0.1, 0.2, 0.5]}),
+        # (SmoteAlgorithm, {"random_state": 4012, "oversampling_level": [0.05, 0.1, 0.2, 0.5]}),
+        # (AdasynAlgorithm, {"random_state": 4012, "oversampling_level": [0.05, 0.1, 0.2, 0.5]}),
+        # (RobRoseAlgorithm, {"random_state": 4012, "oversampling_level": [0.05, 0.1], "alpha": 0.95, "const": 1}),
+        (McdAdasynAlgorithm, {"random_state": 4012, "oversampling_level": [0.05, 0.1, 0.2, 0.5], "sp": 0.95}),
+        # (McdSmoteAlgorithm, {"random_state": 4012, "oversampling_level": [0.05, 0.1, 0.2, 0.5], "sp": 0.95, "p": 0.999}),
     ]
 
     datasets = [wrapper(filename) for wrapper, filename in DATASETS]
@@ -40,8 +40,9 @@ def main():
                 model = m(d)
                 print(f"Evaluating {type(model).__name__} model for algorithm {a[0].__name__} using dataset {type(d).__name__}")
                 model.evaluate()
-                rocauc_mean, rocauc_std, auprc_mean, auprc_std = model.compute_results()
-                print(f"ROCAUC Mean: {rocauc_mean}, ROCAUC Std: {rocauc_std}, AUPRC Mean: {auprc_mean}, AUPRC Std: {auprc_std}")
+                res = model.compute_results()
+                for l, val in res:
+                    print(f"At oversampling ratio {l}, ROCAUC Mean: {val[0]}, ROCAUC Std: {val[1]}, AUPRC Mean: {val[2]}, AUPRC Std: {val[3]}")
             
 
 if __name__ == '__main__':
