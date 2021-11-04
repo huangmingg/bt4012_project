@@ -65,7 +65,7 @@ class SwarmDataset(DatasetWrapper):
         self.columns = x.columns
         
         # split data
-        self.x_train, self.x_test, self.y_train, self.y_test = train_test_split(x.to_numpy(), y.to_numpy(), train_size=0.80, random_state=4012)
+        self.x_train, self.x_test, self.y_train, self.y_test = train_test_split(x.to_numpy(), y.to_numpy(), train_size=0.80, random_state=4012, stratify=y)
         scaler = StandardScaler()
         self.x_train = scaler.fit_transform(self.x_train)
         self.x_test = scaler.transform(self.x_test)

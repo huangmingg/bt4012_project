@@ -1,4 +1,5 @@
 import os
+import numpy as np
 
 from sklearn.metrics import roc_auc_score, average_precision_score
 from preprocess.preprocess import CreditCardDataset, SwarmDataset
@@ -21,6 +22,7 @@ def dataInfo():
     print("High Dimensional Dataset")
     print("Number of Positives: ", len(dataset.raw_df[dataset.raw_df['Swarm_Behaviour']==1]))
     print("Number of Negatives: ", len(dataset.raw_df[dataset.raw_df['Swarm_Behaviour']==0]))
+    print(len(dataset.raw_df))
     dataset = CreditCardDataset("creditcard.csv")
     print("Low Dimensional Dataset")
     print("Number of Positives: ", len(dataset.raw_df[dataset.raw_df['Class']==1]))
@@ -48,9 +50,11 @@ def experiment_3_run(dataset):
 
     for algo, bx, by in to_evaluate:
         print(algo)
+        
         lg_model = LGWrapper(dataset)
-        lg_model.model.fit(bx, by)
-        y_score = lg_model.model.predict(dataset.x_test)
+        lg_model.model.fit(bx, by)  
+        y_score = lg_model.model.predict_proba(dataset.x_test)[:,1]
+        
         print('Logistic Regression')
         print('Classification Report')
         print("ROC AUC Score: ", roc_auc_score(dataset.y_test, y_score))
@@ -58,7 +62,7 @@ def experiment_3_run(dataset):
 
         xgb_model = XGBWrapper(dataset)
         xgb_model.model.fit(bx, by)
-        y_score = xgb_model.model.predict(dataset.x_test)
+        y_score = xgb_model.model.predict_proba(dataset.x_test)[:,1]
         print('XGBOOST')
         print('Classification Report')
         print("ROC AUC Score: ", roc_auc_score(dataset.y_test, y_score))
