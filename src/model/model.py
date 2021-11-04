@@ -30,6 +30,6 @@ class ClassifierWrapper(ABC):
         for j in self.result.keys():
             rocauc = np.array(list(map(lambda x: x[0], self.result[j])))
             auprc = np.array(list(map(lambda x: x[1], self.result[j])))
-            output.append((str(j), (round(np.mean(rocauc), 3), round(np.std(rocauc), 3), 
-            round(np.mean(auprc), 3), round(np.std(auprc), 3))))
+            output.append((str(j), (round(np.mean(rocauc), 4), round(np.std(rocauc), 4), 
+            round(np.mean(auprc), 4), round(np.std(auprc), 4))))
         return output
