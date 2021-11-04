@@ -43,7 +43,6 @@ class RobRoseAlgorithm(SamplingAlgorithm):
 
         tmp_output = tempfile.NamedTemporaryFile(suffix='.csv', delete=False)
         os.system(f'Rscript --vanilla sampling/sampling_robrose.R --file={tmp_input.name} --out={tmp_output.name} --label={label} --r={r} --alpha={alpha} --const={const} --seed={seed}')
-        print(tmp_output.name)
         tmp_output.close()
         sampled_df = pd.read_csv(tmp_output.name, index_col=0)
         balanced_df = pd.concat([df, sampled_df], axis=0)
