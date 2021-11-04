@@ -13,11 +13,12 @@ class DatasetWrapper(ABC):
     def __init__(self, filename: str) -> None:
         parent_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
         self.raw_df = pd.read_csv(os.path.join(parent_dir, 'data', filename))
-        self.preprocess()
 
     @abstractmethod
-    def preprocess(self) -> None:
-        pass
+    def preprocess(self, **kwargs) -> None:
+        self.n_repeats: int = kwargs.get('n_repeats', 2)
+        self.n_splits: int = kwargs.get('n_splits', 5)
+        self.random_state: int = kwargs.get('random_state', 4012)
 
     def balance(self, algorithm: SamplingAlgorithm, **kwargs) -> None:
         oversampling_level: List[float] = kwargs.get('oversampling_level', [0.5])
@@ -38,7 +39,8 @@ class CreditCardDataset(DatasetWrapper):
     def __init__(self, filepath: os.path) -> None:
         super().__init__(filepath)
 
-    def preprocess(self) -> None:
+    def preprocess(self, **kwargs) -> None:
+        super().preprocess()
         self.raw_df = self.raw_df[~self.raw_df.duplicated(keep='last')]
         y = self.raw_df['Class'].to_numpy()
         x = self.raw_df.drop(['Class', 'Time'], axis=1)
@@ -46,7 +48,7 @@ class CreditCardDataset(DatasetWrapper):
         x = x.to_numpy()
         scaler = StandardScaler()
         self.x_train, self.x_test, self.y_train, self.y_test = [], [], [], []
-        r = RepeatedStratifiedKFold(n_splits=5, n_repeats=2, random_state=4012)
+        r = RepeatedStratifiedKFold(n_splits=self.n_splits, n_repeats=self.n_repeats, random_state=self.random_state)
         for train_index, test_index in r.split(x, y):
             self.x_train.append(scaler.fit_transform(x[train_index]))
             self.x_test.append(scaler.transform(x[test_index]))
@@ -59,6 +61,7 @@ class SwarmDataset(DatasetWrapper):
         super().__init__(filepath)
 
     def preprocess(self) -> None:
+        super().preprocess()
         self.raw_df = self.raw_df[~self.raw_df.duplicated(keep='last')].head(2300)
         y = self.raw_df['Swarm_Behaviour']
         x = self.raw_df.drop(['Swarm_Behaviour'], axis=1)
@@ -66,7 +69,7 @@ class SwarmDataset(DatasetWrapper):
         x = x.to_numpy()
         scaler = StandardScaler()
         self.x_train, self.x_test, self.y_train, self.y_test = [], [], [], []
-        r = RepeatedStratifiedKFold(n_splits=5, n_repeats=1, random_state=4012)
+        r = RepeatedStratifiedKFold(n_splits=self.n_splits, n_repeats=self.n_repeats, random_state=self.random_state)
         for train_index, test_index in r.split(x, y):
             self.x_train.append(scaler.fit_transform(x[train_index]))
             self.x_test.append(scaler.transform(x[test_index]))
@@ -80,6 +83,7 @@ class AdultDataset(DatasetWrapper):
             super().__init__(filepath)
 
         def preprocess(self) -> None:
+            super().preprocess()
             self.raw_df[self.raw_df=='?'] = np.nan
             self.raw_df = self.raw_df.dropna(subset=['workclass', 'occupation', 'native.country'])
             self.raw_df = self.raw_df.drop_duplicates()
@@ -96,7 +100,7 @@ class AdultDataset(DatasetWrapper):
             x = x.to_numpy()
             scaler = StandardScaler()
             self.x_train, self.x_test, self.y_train, self.y_test = [], [], [], []
-            r = RepeatedStratifiedKFold(n_splits=5, n_repeats=1, random_state=4012)
+            r = RepeatedStratifiedKFold(n_splits=self.n_splits, n_repeats=self.n_repeats, random_state=self.random_state)
             for train_index, test_index in r.split(x, y):
                 x_train = x[train_index]
                 x_test = x[test_index]

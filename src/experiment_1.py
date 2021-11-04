@@ -14,27 +14,28 @@ from sampling.smote import SmoteAlgorithm
 
 
 def main():
-    DATASETS = [
-        (CreditCardDataset, 'creditcard.csv'),
+    MODELS: ClassifierWrapper = [
+        LGWrapper,
+        XGBWrapper,
     ]
 
-    MODELS: ClassifierWrapper = [
-        XGBWrapper,
-        LGWrapper
+    DATASETS = [
+        (CreditCardDataset, "creditcard.csv", {"random_state": 4012, "n_repeats": 2, "n_splits": 5}),
     ]
 
     ALGORITHMS: SamplingAlgorithm = [
         (BaselineAlgorithm, {"random_state": 4012, "oversampling_level": [0.05, 0.1, 0.2, 0.5]}),
         (SmoteAlgorithm, {"random_state": 4012, "oversampling_level": [0.05, 0.1, 0.2, 0.5]}),
         (AdasynAlgorithm, {"random_state": 4012, "oversampling_level": [0.05, 0.1, 0.2, 0.5]}),
-        (RobRoseAlgorithm, {"random_state": 4012, "oversampling_level": [0.05, 0.1], "alpha": 0.95, "const": 1}),
+        (RobRoseAlgorithm, {"random_state": 4012, "oversampling_level": [0.05, 0.1, 0.2, 0.5], "alpha": 0.95, "const": 1}),
         (McdAdasynAlgorithm, {"random_state": 4012, "oversampling_level": [0.05, 0.1, 0.2, 0.5], "sp": 0.95}),
         (McdSmoteAlgorithm, {"random_state": 4012, "oversampling_level": [0.05, 0.1, 0.2, 0.5], "sp": 0.95, "p": 0.999}),
     ]
 
-    datasets = [wrapper(filename) for wrapper, filename in DATASETS]
     for m in MODELS:
-        for d in datasets:
+        for d, fp, p in DATASETS:
+            d = d(fp)
+            d.preprocess(**p)
             for a in ALGORITHMS:
                 d.balance(a[0], **a[1])
                 model = m(d)
