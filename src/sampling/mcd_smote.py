@@ -19,8 +19,8 @@ class McdSmoteAlgorithm(SamplingAlgorithm):
     """
 
     @staticmethod
-    def run(x_train: np.array, y_train: np.array, columns: List[str], **kwargs) -> Tuple[np.array, np.array]:
-        random_state = kwargs['random_state']
+    def run(x_train: np.array, y_train: np.array, columns: List[str], oversampling_level: float = 0.5, 
+    random_state: int = 4012, **kwargs) -> Tuple[np.array, np.array]:
         sp = kwargs['sp']
         p = kwargs['p']
         minority_index = np.where(y_train == 1)
@@ -40,5 +40,6 @@ class McdSmoteAlgorithm(SamplingAlgorithm):
         new_y_train = np.concatenate((np.zeros(majority.shape[0]), np.ones(minority.shape[0])), axis=None)
 
         # runs SMOTE algorithm to generate synthetic data for the inlier minority class examples
-        balanced_x, balanced_y = SMOTE().fit_resample(new_x_train, new_y_train)
-        return balanced_x, balanced_y
+        smote = SMOTE(sampling_strategy=oversampling_level, random_state=random_state)
+        bxt, byt = smote.fit_resample(new_x_train, new_y_train)
+        return bxt, byt
