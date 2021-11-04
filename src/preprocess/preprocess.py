@@ -46,7 +46,7 @@ class CreditCardDataset(DatasetWrapper):
         x = x.to_numpy()
         scaler = StandardScaler()
         self.x_train, self.x_test, self.y_train, self.y_test = [], [], [], []
-        r = RepeatedStratifiedKFold(n_splits=5, n_repeats=1, random_state=4012)
+        r = RepeatedStratifiedKFold(n_splits=5, n_repeats=2, random_state=4012)
         for train_index, test_index in r.split(x, y):
             self.x_train.append(scaler.fit_transform(x[train_index]))
             self.x_test.append(scaler.transform(x[test_index]))

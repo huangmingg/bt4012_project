@@ -19,17 +19,17 @@ def main():
     ]
 
     MODELS: ClassifierWrapper = [
-        # XGBWrapper,
+        XGBWrapper,
         LGWrapper
     ]
 
     ALGORITHMS: SamplingAlgorithm = [
-        # (BaselineAlgorithm, {"random_state": 4012, "oversampling_level": [0.05, 0.1, 0.2, 0.5]}),
-        # (SmoteAlgorithm, {"random_state": 4012, "oversampling_level": [0.05, 0.1, 0.2, 0.5]}),
-        # (AdasynAlgorithm, {"random_state": 4012, "oversampling_level": [0.05, 0.1, 0.2, 0.5]}),
-        # (RobRoseAlgorithm, {"random_state": 4012, "oversampling_level": [0.05, 0.1], "alpha": 0.95, "const": 1}),
+        (BaselineAlgorithm, {"random_state": 4012, "oversampling_level": [0.05, 0.1, 0.2, 0.5]}),
+        (SmoteAlgorithm, {"random_state": 4012, "oversampling_level": [0.05, 0.1, 0.2, 0.5]}),
+        (AdasynAlgorithm, {"random_state": 4012, "oversampling_level": [0.05, 0.1, 0.2, 0.5]}),
+        (RobRoseAlgorithm, {"random_state": 4012, "oversampling_level": [0.05, 0.1], "alpha": 0.95, "const": 1}),
         (McdAdasynAlgorithm, {"random_state": 4012, "oversampling_level": [0.05, 0.1, 0.2, 0.5], "sp": 0.95}),
-        # (McdSmoteAlgorithm, {"random_state": 4012, "oversampling_level": [0.05, 0.1, 0.2, 0.5], "sp": 0.95, "p": 0.999}),
+        (McdSmoteAlgorithm, {"random_state": 4012, "oversampling_level": [0.05, 0.1, 0.2, 0.5], "sp": 0.95, "p": 0.999}),
     ]
 
     datasets = [wrapper(filename) for wrapper, filename in DATASETS]
