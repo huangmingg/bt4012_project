@@ -36,13 +36,12 @@ def experiment_3():
 
     DATASETS = [
         (SwarmDataset, "Swarm_Behaviour.csv", {"random_state": 4012, "n_repeats": 2, "n_splits": 5}),
-        (CreditCardDataset, "creditcard.csv", {"random_state": 4012, "n_repeats": 2, "n_splits": 5})
     ]
 
     ALGORITHMS: SamplingAlgorithm = [
-#         (BaselineAlgorithm, {"random_state": 4012, "oversampling_level": [0.6]}),
-#         (SmoteAlgorithm, {"random_state": 4012, "oversampling_level": [0.6]}),
-        (AdasynAlgorithm, {"random_state": 4012, "oversampling_level": [0.7]}),
+        (BaselineAlgorithm, {"random_state": 4012, "oversampling_level": [0.7,0.75,0.8,0.85]}),
+        (SmoteAlgorithm, {"random_state": 4012, "oversampling_level": [0.7,0.75,0.8,0.85]}),
+        (AdasynAlgorithm, {"random_state": 4012, "oversampling_level": [0.7,0.75,0.8,0.85]}),
     ]
 
     for m in MODELS:
