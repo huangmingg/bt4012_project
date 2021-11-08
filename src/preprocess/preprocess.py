@@ -1,4 +1,5 @@
 import os
+import math
 import pandas as pd
 import numpy as np
 from abc import ABC, abstractmethod
@@ -88,13 +89,23 @@ class AdultDataset(DatasetWrapper):
             self.raw_df = self.raw_df.dropna(subset=['workclass', 'occupation', 'native.country'])
             self.raw_df = self.raw_df.drop_duplicates()
             self.raw_df.income = self.raw_df.income.map({'<=50K': 0, '>50K':1})
+
+            # Undersample minority class to vary imbalance levels if required
+            imbal_level: float = kwargs.get('imbal_level', None)
+            if imbal_level:
+                maj = self.raw_df[self.raw_df.income==0]
+                target_num_mino = math.ceil(len(maj)/(1-imbal_level)*(imbal_level))
+                new_mino = self.raw_df[self.raw_df.income==1].sample(n=target_num_mino, random_state=self.random_state)
+                
+                self.raw_df = pd.concat([maj, new_mino]).sample(frac=1, random_state=self.random_state) # combine undersampled minority and majority class and shuffle
+            
             # identify numerical and categorical columns
             x = self.raw_df.drop('income', axis=1)
             self.columns = x.columns
             self.num_columns = ['age', 'fnlwgt', 'education.num', 'capital.gain', 'capital.loss', 'hours.per.week']
             self.cat_columns = ['workclass', 'education', 'marital.status', 'occupation', 'relationship' ,'race', 'sex', 'native.country']  
             self.num_columns_ind = [self.columns.tolist().index(num) for num in self.num_columns]
-            self.cat_columns_ind = [self.columns.tolist().index(cat) for cat in self.cat_columns]      
+            self.cat_columns_ind = [self.columns.tolist().index(cat) for cat in self.cat_columns] 
 
             x = x.to_numpy()
             y = self.raw_df.income.to_numpy()
