@@ -10,7 +10,7 @@ class XGBWrapper(ClassifierWrapper):
 
     def __init__(self, data: DatasetWrapper, *args) -> None:
         super().__init__(data)
-        self.model = XGBClassifier(use_label_encoder=False, random_state=4012)
+        self.model = XGBClassifier(use_label_encoder=False, random_state=4012, eval_metric='logloss')
 
     def evaluate(self):
         super().evaluate()
