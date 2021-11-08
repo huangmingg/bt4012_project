@@ -63,7 +63,7 @@ class SwarmDataset(DatasetWrapper):
     def preprocess(self, **kwargs) -> None:
         super().preprocess()
         self.raw_df = self.raw_df[~self.raw_df.duplicated(keep='last')].head(2300)
-        y = self.raw_df['Swarm_Behaviour']
+        y = self.raw_df['Swarm_Behaviour'].to_numpy()
         x = self.raw_df.drop(['Swarm_Behaviour'], axis=1)
         self.columns = x.columns
         x = x.to_numpy()
