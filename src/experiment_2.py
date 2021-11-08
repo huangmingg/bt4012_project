@@ -1,57 +1,94 @@
-import numpy as np
+import copy
 
+import numpy as np
+import pandas as pd
 from sklearn.preprocessing import OneHotEncoder
-from sklearn.metrics import roc_auc_score, average_precision_score
+
 
 from preprocess.preprocess import AdultDataset
+from sampling.sampling import SamplingAlgorithm
 from sampling.baseline import BaselineAlgorithm
 from sampling.robrose import RobRoseAlgorithm
 from sampling.smote import SmotencAlgorithm
 from sampling.adasyn import AdasynNCAlgorithm
+from model.model import ClassifierWrapper
 from model.lg_model import LGWrapper
-from model.xgb_model import XGBWrapper
+from model.decision_tree_model import DecisionTreeWrapper
 
-def experiment_2():
-    """
-    Experiment on Adult dataset to compare algorithm performances on continuous+nominal dataset
-    Resampling is done with both categorical and numerical variables, before one-hot encoding and model fitting.
-    """    
-    dataset = AdultDataset('adult.csv')
-    bx_imbal, by_imbal = BaselineAlgorithm.run(dataset.x_train, dataset.y_train)
-    bx_smotenc, by_smotenc= SmotencAlgorithm.run(dataset.x_train, dataset.y_train, categorical_features=dataset.cat_columns_ind)
-    bx_adasync, by_adasync= AdasynNCAlgorithm.run(dataset.x_train, dataset.y_train, categorical_features=dataset.cat_columns_ind)
-    bx_robrose, by_robrose = RobRoseAlgorithm.run(dataset.x_train, dataset.y_train, label='income', columns=dataset.columns, r=0.5, alpha=0.95, const=1, seed=4012)
 
-    to_evaluate = [
-        ('Imbalanced', bx_imbal, by_imbal),
-        ('SMOTENC', bx_smotenc, by_smotenc),
-        ('ADASYNNC', bx_adasync, by_adasync),
-        ('ROBROSE', bx_robrose, by_robrose),
+def main():
+    MODELS: ClassifierWrapper = [
+        LGWrapper,
+        DecisionTreeWrapper,
     ]
 
-    for algo, bx, by in to_evaluate:
-        print(algo)
-        ohe = OneHotEncoder(sparse=False, handle_unknown='ignore')
+    DATASETS = [
+        (AdultDataset, "adult.csv", {"random_state": 4012,
+                                     "n_repeats": 1,
+                                     "n_splits": 5}
+         ),
+        (AdultDataset, "adult.csv", {"random_state": 4012,
+                                     "imbal_level": 0.05,
+                                     "n_repeats": 1,
+                                     "n_splits": 5}
+         ),
+        (AdultDataset, "adult.csv", {"random_state": 4012,
+                                     "imbal_level": 0.01,
+                                     "n_repeats": 1,
+                                     "n_splits": 5}
+         ),
+    ]
 
-        x_train_ohe = ohe.fit_transform(bx[:, dataset.cat_columns_ind]) 
-        x_test_ohe = ohe.transform(dataset.x_test[:, dataset.cat_columns_ind])
+    ALGORITHMS: SamplingAlgorithm = [
+        # Baseline, Smotenc, Adasynnc interprets as ratio of minority:majority in resampled data
+        (BaselineAlgorithm, {}),
+        (SmotencAlgorithm, {"random_state": 4012,
+                            "oversampling_level": [1.0]}),
+        (AdasynNCAlgorithm, {"random_state": 4012,
+                             "oversampling_level": [1.0]}),
+        # robROSE interprets as minority proportion in resample data
+        (RobRoseAlgorithm, {"random_state": 4012, "oversampling_level": [
+         0.5], "alpha": 0.95, "const": 1}),
+    ]
 
-        dataset.bxt = np.hstack([bx[:, dataset.num_columns_ind], x_train_ohe])
-        dataset.yxt = by
+    for m in MODELS:
+        for d, fp, p in DATASETS:
+            d = d(fp)
+            d.preprocess(**p)
+            for a in ALGORITHMS:
+                d.balance(a[0], categorical_features=d.cat_columns_ind, **a[1])
 
-        x_test_comb = np.hstack([dataset.x_test[:,dataset.num_columns_ind], x_test_ohe])
+                x_test_orig = copy.deepcopy(d.x_test)
 
-        lg_model = LGWrapper(dataset)
-        lg_model.model.fit(dataset.bxt, dataset.yxt)
-        pos_index = np.where(lg_model.model.classes_ == '>50K')[0][0]
-        y_score = lg_model.model.predict_proba(x_test_comb)[:,pos_index]
-        print('Logistic Regression: ', roc_auc_score(dataset.y_test, y_score), average_precision_score(dataset.y_test, y_score, pos_label='>50K') )
+                # One Hot Encode the balanced datasets prior to evaluation (only for Experiment 2)
+                for level in d.b.keys():  # For each oversampling level
+                    for idx, (x, y) in enumerate(d.b[level]):  # For each fold
+                        # Fit-transform OHE on balanced train fold, then transform test fold
+                        ohe = OneHotEncoder(
+                            handle_unknown='ignore', sparse=False)
 
-        xgb_model = XGBWrapper(dataset)
-        xgb_model.model.fit(dataset.bxt, dataset.yxt)
-        pos_index = np.where(xgb_model.model.classes_ == '>50K')[0][0]
-        y_score = xgb_model.model.predict_proba(x_test_comb)[:,pos_index]
-        print('XGBOOST', roc_auc_score(dataset.y_test, y_score), average_precision_score(dataset.y_test, y_score, pos_label='>50K'))
+                        bxt_ohe = ohe.fit_transform(x[:, d.cat_columns_ind])
+                        new_bxt = np.hstack([x[:, d.num_columns_ind], bxt_ohe])
+                        d.b[level][idx] = new_bxt, y
+
+                        x_test = d.x_test[idx]
+                        x_test_ohe = ohe.transform(
+                            x_test[:, d.cat_columns_ind])
+                        new_x_test = np.hstack(
+                            [x_test[:, d.num_columns_ind], x_test_ohe])
+                        d.x_test[idx] = new_x_test
+
+                model = m(d)
+                print(f"Evaluating {type(model).__name__} model for algorithm {a[0].__name__} using dataset {type(d).__name__}")
+                model.evaluate()
+                res = model.compute_results()
+                for l, val in res:
+                    print(f"At oversampling ratio {l}, ROCAUC Mean: {val[0]}, ROCAUC Std: {val[1]}, AUPRC Mean: {val[2]}, AUPRC Std: {val[3]}")
+
+                # Reset x_test
+                d.x_test = x_test_orig
+
 
 if __name__ == '__main__':
-    experiment_2()
+    main()
+
