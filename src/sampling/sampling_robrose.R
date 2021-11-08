@@ -1,19 +1,19 @@
 # Check and install packages if necessary
 for (package in c('devtools', 'readr', 'optparse')) {
-  if (!require(package, character.only=T, quietly=T)) {
+  if (!suppressMessages(suppressWarnings(require(package, character.only=T, quietly=T)))) {
     install.packages(package)
   }
 }
 
-library(readr)
-library(optparse)
-library(devtools)
+suppressMessages(suppressWarnings(library(readr)))
+suppressMessages(suppressWarnings(library(optparse)))
+suppressMessages(suppressWarnings(library(devtools)))
 
-if (!require(robROSE)) {
+if (!suppressMessages(suppressWarnings(require(robROSE)))) {
   devtools::install_github("SebastiaanHoppner/robROSE/robROSE")
 }
 
-library(robROSE)
+suppressMessages(suppressWarnings(library(robROSE)))
 
 # Parser for command line arguments
 option_list = list(
