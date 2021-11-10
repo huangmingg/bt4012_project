@@ -32,7 +32,7 @@ class RobRoseAlgorithm(SamplingAlgorithm):
         """
 
         label = 'class'
-        r = oversampling_level
+        r = np.round(oversampling_level/(1+oversampling_level), 2) # convert oversampling level to r
         alpha = kwargs['alpha']
         const = kwargs['const']
         x = pd.DataFrame(x_train, columns=columns)       
