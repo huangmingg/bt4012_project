@@ -5,20 +5,23 @@ from sampling.sampling import SamplingAlgorithm
 from imblearn.over_sampling import SMOTE, SMOTENC
 from imblearn.under_sampling import RandomUnderSampler 
 from imblearn.pipeline import Pipeline
-from typing import Tuple
+from typing import Tuple, List
 
 class SmoteAlgorithm(SamplingAlgorithm):
     
     @staticmethod
-    def run(x_train: np.array, y_train: np.array, **kwargs) -> Tuple[np.array, np.array]:
-        balanced_x, balanced_y = SMOTE().fit_resample(x_train, y_train)
-        return balanced_x, balanced_y
+    def run(x_train: np.array, y_train: np.array, columns: List[str], oversampling_level: float = 0.5, 
+    random_state: int = 4012, **kwargs) -> Tuple[np.array, np.array]:
+        smote = SMOTE(sampling_strategy=oversampling_level, random_state=random_state)
+        bxt, byt = smote.fit_resample(x_train, y_train)
+        return bxt, byt
 
 
 class SmotencAlgorithm(SamplingAlgorithm):
     
     @staticmethod
-    def run(x_train: np.array, y_train: np.array, **kwargs) -> Tuple[np.array, np.array]:
+    def run(x_train: np.array, y_train: np.array, columns: List[str], oversampling_level: float = 0.5, 
+    random_state: int = 4012, **kwargs) -> Tuple[np.array, np.array]:
         """Runs SMOTENC algorithm to balance dataset. Intended for mixed datasets (categorical + numerical features)
 
         Args:
@@ -30,6 +33,6 @@ class SmotencAlgorithm(SamplingAlgorithm):
         """
 
         categorical_features = kwargs['categorical_features']
-        balanced_x, balanced_y = SMOTENC(categorical_features=categorical_features).fit_resample(x_train, y_train)
-        return balanced_x, balanced_y
-
+        smotenc = SMOTENC(categorical_features=categorical_features, sampling_strategy=oversampling_level, random_state=random_state)
+        bxt, byt = smotenc.fit_resample(x_train, y_train)
+        return bxt, byt

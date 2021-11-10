@@ -1,36 +1,36 @@
 import math
-from collections import Counter
-from typing import Tuple
-
-
 import numpy as np
+from collections import Counter
+from imblearn.over_sampling import ADASYN, SMOTENC
+from sampling.sampling import SamplingAlgorithm
 from scipy import sparse
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.utils import _safe_indexing
 from sklearn.utils import check_array
 from sklearn.utils.sparsefuncs_fast import csr_mean_variance_axis0
 from sklearn.utils.sparsefuncs_fast import csc_mean_variance_axis0
-
-from sampling.sampling import SamplingAlgorithm
-from imblearn.over_sampling import ADASYN, SMOTENC
+from typing import Tuple, List
 
 
-class Adasyn(SamplingAlgorithm):
+class AdasynAlgorithm(SamplingAlgorithm):
 
     @staticmethod
-    def run(x_train: np.array, y_train: np.array, **kwargs) -> Tuple[np.array, np.array]:
-        balanced_x, balanced_y = ADASYN().fit_resample(x_train, y_train)
-        return balanced_x, balanced_y
+    def run(x_train: np.array, y_train: np.array, columns: List[str], oversampling_level: float = 0.5, 
+    random_state: int = 4012,  **kwargs) -> Tuple[np.array, np.array]:
+        adasyn = ADASYN(sampling_strategy=oversampling_level, random_state=random_state)
+        bxt, byt = adasyn.fit_resample(x_train, y_train)
+        return bxt, byt
 
 
 class AdasynNCAlgorithm(SamplingAlgorithm):
 
     @staticmethod
-    def run(x_train: np.array, y_train: np.array, **kwargs) -> Tuple[np.array, np.array]:
+    def run(x_train: np.array, y_train: np.array, columns: List[str], oversampling_level: float = 0.5, 
+    random_state: int = 4012,  **kwargs) -> Tuple[np.array, np.array]:
         categorical_features = kwargs['categorical_features']
-        balanced_x, balanced_y = ADASYNNC(
-            categorical_features).fit_resample(x_train, y_train)
-        return balanced_x, balanced_y
+        adasynnc = ADASYNNC(categorical_features, sampling_strategy=oversampling_level, random_state=random_state)
+        bxt, byt = adasynnc.fit_resample(x_train, y_train)
+        return bxt, byt
 
 
 class ADASYNNC(SMOTENC):

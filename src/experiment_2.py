@@ -1,57 +1,67 @@
-import numpy as np
-
-from sklearn.preprocessing import OneHotEncoder
-from sklearn.metrics import roc_auc_score, average_precision_score
-
-from preprocess.preprocess import AdultDataset
-from sampling.baseline import BaselineAlgorithm
-from sampling.robrose import RobRoseAlgorithm
-from sampling.smote import SmotencAlgorithm
-from sampling.adasyn import AdasynNCAlgorithm
+import os
+import pandas as pd
+from model.decision_tree_model import DecisionTreeWrapper
 from model.lg_model import LGWrapper
-from model.xgb_model import XGBWrapper
+from model.model import ClassifierWrapper
+from preprocess.preprocess import CreditCardDataset
+from sampling.adasyn import AdasynAlgorithm
+from sampling.baseline import BaselineAlgorithm
+from sampling.mcd_adasyn import McdAdasynAlgorithm
+from sampling.mcd_smote import McdSmoteAlgorithm
+from sampling.robrose import RobRoseAlgorithm
+from sampling.sampling import SamplingAlgorithm
+from sampling.smote import SmoteAlgorithm
 
-def experiment_2():
-    """
-    Experiment on Adult dataset to compare algorithm performances on continuous+nominal dataset
-    Resampling is done with both categorical and numerical variables, before one-hot encoding and model fitting.
-    """    
-    dataset = AdultDataset('adult.csv')
-    bx_imbal, by_imbal = BaselineAlgorithm.run(dataset.x_train, dataset.y_train)
-    bx_smotenc, by_smotenc= SmotencAlgorithm.run(dataset.x_train, dataset.y_train, categorical_features=dataset.cat_columns_ind)
-    bx_adasync, by_adasync= AdasynNCAlgorithm.run(dataset.x_train, dataset.y_train, categorical_features=dataset.cat_columns_ind)
-    bx_robrose, by_robrose = RobRoseAlgorithm.run(dataset.x_train, dataset.y_train, label='income', columns=dataset.columns, r=0.5, alpha=0.95, const=1, seed=4012)
 
-    to_evaluate = [
-        ('Imbalanced', bx_imbal, by_imbal),
-        ('SMOTENC', bx_smotenc, by_smotenc),
-        ('ADASYNNC', bx_adasync, by_adasync),
-        ('ROBROSE', bx_robrose, by_robrose),
+def main():
+    OVERSAMPLING_LEVEL = [0.01, 0.05, 0.1, 0.5, 1]
+    RANDOM_STATE = 4012
+
+    MODELS: ClassifierWrapper = [
+        LGWrapper,
+        DecisionTreeWrapper,
     ]
 
-    for algo, bx, by in to_evaluate:
-        print(algo)
-        ohe = OneHotEncoder(sparse=False, handle_unknown='ignore')
+    DATASETS = [
+        (CreditCardDataset, "creditcard.csv", {"random_state": RANDOM_STATE, "n_repeats": 2, "n_splits": 5}),
+    ]
 
-        x_train_ohe = ohe.fit_transform(bx[:, dataset.cat_columns_ind]) 
-        x_test_ohe = ohe.transform(dataset.x_test[:, dataset.cat_columns_ind])
+    ALGORITHMS: SamplingAlgorithm = [
+        (BaselineAlgorithm, {"random_state": RANDOM_STATE, "oversampling_level": OVERSAMPLING_LEVEL}),
+        (SmoteAlgorithm, {"random_state": RANDOM_STATE, "oversampling_level": OVERSAMPLING_LEVEL}),
+        (AdasynAlgorithm, {"random_state": RANDOM_STATE, "oversampling_level": OVERSAMPLING_LEVEL}),
+        (RobRoseAlgorithm, {"random_state": RANDOM_STATE, "oversampling_level": OVERSAMPLING_LEVEL, "alpha": 0.95, "const": 1}),
+        (McdAdasynAlgorithm, {"random_state": RANDOM_STATE, "oversampling_level": OVERSAMPLING_LEVEL, "sp": 0.95}),
+        (McdSmoteAlgorithm, {"random_state": RANDOM_STATE, "oversampling_level": OVERSAMPLING_LEVEL, "sp": 0.95, "p": 0.999}),
+    ]
 
-        dataset.bxt = np.hstack([bx[:, dataset.num_columns_ind], x_train_ohe])
-        dataset.yxt = by
+    results = []
 
-        x_test_comb = np.hstack([dataset.x_test[:,dataset.num_columns_ind], x_test_ohe])
+    for m in MODELS:
+        for d, fp, p in DATASETS:
+            d = d(fp)
+            d.preprocess(**p)
+            for a in ALGORITHMS:
+                d.balance(a[0], **a[1])
+                model = m(d)
+                print(f"Evaluating {type(model).__name__} model for algorithm {a[0].__name__} using dataset {type(d).__name__}")
+                model.evaluate()
+                res = model.compute_results()
+                for l, val in res:
+                    results.append(
+                        {
+                            "algo": a[0].__name__,
+                            "model": type(model).__name__,
+                            "dataset": type(d).__name__,
+                            "sampling_ratio": {l},
+                            "rocauc_mean": val[0],
+                            "rocauc_std": val[1],
+                            "auprc_mean": val[2],
+                            "auprc_std": val[3]     
+                        }
+                    )
+                    print(f"At oversampling ratio {l}, ROCAUC Mean: {val[0]}, ROCAUC Std: {val[1]}, AUPRC Mean: {val[2]}, AUPRC Std: {val[3]}")
 
-        lg_model = LGWrapper(dataset)
-        lg_model.model.fit(dataset.bxt, dataset.yxt)
-        pos_index = np.where(lg_model.model.classes_ == '>50K')[0][0]
-        y_score = lg_model.model.predict_proba(x_test_comb)[:,pos_index]
-        print('Logistic Regression: ', roc_auc_score(dataset.y_test, y_score), average_precision_score(dataset.y_test, y_score, pos_label='>50K') )
-
-        xgb_model = XGBWrapper(dataset)
-        xgb_model.model.fit(dataset.bxt, dataset.yxt)
-        pos_index = np.where(xgb_model.model.classes_ == '>50K')[0][0]
-        y_score = xgb_model.model.predict_proba(x_test_comb)[:,pos_index]
-        print('XGBOOST', roc_auc_score(dataset.y_test, y_score), average_precision_score(dataset.y_test, y_score, pos_label='>50K'))
 
 if __name__ == '__main__':
-    experiment_2()
+    main()

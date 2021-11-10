@@ -1,6 +1,7 @@
 numpy==1.19.2
 pandas==1.2.2
-scikit-learn==1.0.0
+sklearn
+scikit-learn==1.0.1
 xgboost==1.4.2
 imbalanced-learn==0.7.0
-scipy==1.7.1
+scipy==1.4.1
