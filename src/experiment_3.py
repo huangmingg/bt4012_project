@@ -10,7 +10,7 @@ from sampling.baseline import BaselineAlgorithm
 from sampling.smote import SmoteAlgorithm
 from sampling.adasyn import AdasynAlgorithm
 from model.lg_model import LGWrapper
-from model.xgb_model import XGBWrapper
+from model.decision_tree_model import DecisionTreeWrapper
 from sklearn.metrics import roc_auc_score, average_precision_score
 
 def dataInfo():
@@ -31,23 +31,44 @@ def experiment_3():
     
     MODELS: ClassifierWrapper = [
         LGWrapper,
-        XGBWrapper,
+        DecisionTreeWrapper,
     ]
 
     DATASETS = [
-        (SwarmDataset, "Swarm_Behaviour.csv", {"random_state": 4012, "n_repeats": 2, "n_splits": 5}),
+        (SwarmDataset, "Swarm_Behaviour.csv", {"random_state": 4012,
+                                     "n_repeats": 1,
+                                     "imbal_level": None,
+                                     "n_splits": 5}
+         ),
+        (SwarmDataset, "Swarm_Behaviour.csv", {"random_state": 4012,
+                                     "imbal_level": 0.1,
+                                     "n_repeats": 1,
+                                     "n_splits": 5}
+         ),
+        (SwarmDataset, "Swarm_Behaviour.csv", {"random_state": 4012,
+                                     "imbal_level": 0.05,
+                                     "n_repeats": 1,
+                                     "n_splits": 5}
+         ),
+        (SwarmDataset, "Swarm_Behaviour.csv", {"random_state": 4012,
+                                     "imbal_level": 0.01,
+                                     "n_repeats": 1,
+                                     "n_splits": 5}
+         ),
     ]
 
     ALGORITHMS: SamplingAlgorithm = [
-        (BaselineAlgorithm, {"random_state": 4012, "oversampling_level": [0.7,0.75,0.8,0.85]}),
-        (SmoteAlgorithm, {"random_state": 4012, "oversampling_level": [0.7,0.75,0.8,0.85]}),
-        (AdasynAlgorithm, {"random_state": 4012, "oversampling_level": [0.7,0.75,0.8,0.85]}),
+        (BaselineAlgorithm, {}),
+        (SmoteAlgorithm, {"random_state": 4012, "oversampling_level": [0.7, 0.8, 0.9]}),
+        (AdasynAlgorithm, {"random_state": 4012, "oversampling_level": [0.7, 0.8, 0.9]}),
     ]
 
     for m in MODELS:
         for d, fp, p in DATASETS:
             d = d(fp)
             d.preprocess(**p)
+            if p["imbal_level"]:
+                print("Imbalanced Level:" + str(p["imbal_level"]))
             for a in ALGORITHMS:
                 d.balance(a[0], **a[1])
                 model = m(d)

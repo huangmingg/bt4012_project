@@ -39,6 +39,7 @@ class CreditCardDataset(DatasetWrapper):
 
     def __init__(self, filepath: os.path) -> None:
         super().__init__(filepath)
+        
 
     def preprocess(self, **kwargs) -> None:
         super().preprocess()
@@ -60,10 +61,26 @@ class CreditCardDataset(DatasetWrapper):
 class SwarmDataset(DatasetWrapper):
     def __init__(self, filepath: os.path) -> None:
         super().__init__(filepath)
+        self.raw_df = self.raw_df.sample(2300, random_state=4012)
+        print("Number of Positives: ", len(self.raw_df[self.raw_df['Swarm_Behaviour']==1]))
+        print("Number of Negatives: ", len(self.raw_df[self.raw_df['Swarm_Behaviour']==0]))
+        print("Proportion of Postives over the whole dataset: ", len(self.raw_df[self.raw_df['Swarm_Behaviour']==1])/len(self.raw_df))
+        print("Proportion of Postives over the majority: ", len(self.raw_df[self.raw_df['Swarm_Behaviour']==1])/len(self.raw_df[self.raw_df['Swarm_Behaviour']==0]))
 
     def preprocess(self, **kwargs) -> None:
         super().preprocess()
-        self.raw_df = self.raw_df[~self.raw_df.duplicated(keep='last')].head(2300)
+        self.raw_df = self.raw_df.drop_duplicates()
+        # Undersample minority class to vary imbalance levels if required
+        imbal_level: float = kwargs.get('imbal_level', None)
+        if imbal_level:
+            maj = self.raw_df[self.raw_df.Swarm_Behaviour==0]
+            target_num_mino = math.ceil(len(maj)/(1-imbal_level)*(imbal_level))
+            print(target_num_mino)
+            new_mino = self.raw_df[self.raw_df.Swarm_Behaviour==1].sample(n=target_num_mino, random_state=self.random_state)
+
+            self.raw_df = pd.concat([maj, new_mino]).sample(frac=1, random_state=self.random_state) # combine undersampled minority and majority class and shuffle
+        
+        
         y = self.raw_df['Swarm_Behaviour'].to_numpy()
         x = self.raw_df.drop(['Swarm_Behaviour'], axis=1)
         self.columns = x.columns
