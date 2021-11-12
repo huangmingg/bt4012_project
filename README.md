@@ -20,13 +20,13 @@ This literature review focuses on various oversampling techniques, namely Synthe
 
 2. Data preparation
 
-Download datasets at:
+    Download datasets at:
 
 - Credit Card Fraud Dataset: <https://www.kaggle.com/mlg-ulb/creditcardfraud/download>
 - Adult Dataset: <https://www.kaggle.com/uciml/adult-census-income/download>
 - Swarm Behaviour Dataset: <https://www.kaggle.com/deepcontractor/swarm-behaviour-classification/download>
 
-Place downloaded files in ```data``` folder
+    Place downloaded files in ```data``` folder
 
 3. Run Experiment
 
